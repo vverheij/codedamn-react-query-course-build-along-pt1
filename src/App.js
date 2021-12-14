@@ -9,11 +9,11 @@ const fetcher = (url) => fetch(url).then(res => res.json())
 
 function App() {
   const [postID, setPostID] = useState(null)
-  // const [state, setState] = useState(false)
+  const [enabled, setEnabled] = useState(false)
 
   const { isLoading, data: posts, error } = useQuery('posts',
     () => fetcher('https://jsonplaceholder.typicode.com/posts'),
-    { enabled: true })
+    { enabled: enabled, select: result => result.slice(0, 5) })
 
   if (isLoading) {
     return <h2>Loading...</h2>
@@ -28,19 +28,27 @@ function App() {
   // const cachedPost = client.getQueryData(['post', 5])
   // console.log('cached post? ', { cachedPost })
 
+  const mutateTitle = (id) => {
+    client.setQueryData(['post', id], oldData => {
+      if (oldData) {
+        return { ...oldData, title: 'new title' }
+      }
+    })
+  }
   return (
     <div className="App">
       <div className="App-header">
-        {/*<button onClick={() => setState(state => !state)}>Fetch Posts</button>*/}
+        {!posts && <button onClick={() => setEnabled(enabled => !enabled)}>Fetch Posts</button>}
         {posts && posts.map(post => {
           const cachedPost = client.getQueryData(['post', post.id])
           console.log('cached post? ', { cachedPost })
-
+          const x = "#"
           return <div key={post.id}>
-            <button onClick={() => setPostID(post.id)}>id: {post.id} - {post.title} - {cachedPost ? 'visited' : ''}</button>
+            <a href={x} onClick={() => setPostID(post.id)}>id: {post.id} - {post.title}</a> <b>{cachedPost ? '(visited)' : ''}</b>
+            <button onClick={() => mutateTitle(post.id)}>Mutate titel</button>
           </div>
         })}
-      </div>
+      </div >
     </div >
   )
 }

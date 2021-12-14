@@ -7,7 +7,9 @@ const fetcher = (url) => fetch(url).then(res => res.json())
 export default function Post({ postID, goBack }) {
   const url = `https://jsonplaceholder.typicode.com/posts/${postID}`
   console.log(url)
-  const { data: post, isLoading, error } = useQuery(['post', postID], () => fetcher(url))
+  const { data: post, isLoading, error } = useQuery(['post', postID],
+    () => fetcher(url),
+    { staleTime: 0, cacheTime: Infinity })
 
   if (isLoading) {
     return <h2>Loading...</h2>
